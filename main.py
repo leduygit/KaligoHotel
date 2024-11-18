@@ -4,43 +4,10 @@ import json
 from dataclasses import asdict
 from adapters import BaseAdapter, AcmeAdapter, PatagoniaAdapter, PaperfliesAdapter
 from suppliers import BaseSupplier, AcmeSupplier, PatagoniaSupplier, PaperfliesSupplier
+from hotel_merger import HotelMerger
+from merge_strategy import merge_general_field, merge_images_field
+from hotel_data import Hotel
 import requests
-
-
-@dataclass
-class Image:
-    link: str
-    description: str
-
-@dataclass
-class Images:
-    rooms: List[Image]
-    site: List[Image]
-    amenities: List[Image]
-
-@dataclass
-class Amenities:
-    general: List[str]
-    room: List[str]
-
-@dataclass
-class Location:
-    lat: float
-    lng: float
-    address: str
-    city: str
-    country: str
-
-@dataclass
-class Hotel:
-    id: str
-    destination_id: int
-    name: str
-    location: Location
-    description: str
-    amenities: Amenities
-    images: Images
-    booking_conditions: List[str]
 
 
 class SupplierFactory:
@@ -52,25 +19,43 @@ class SupplierFactory:
             SupplierClass(AdapterClass())
             for SupplierClass, AdapterClass in self.supplier_mapping.values()
         ]
-
-supplier_mapping = {
-    "Acme": (AcmeSupplier, AcmeAdapter),
-    "Patagonia": (PatagoniaSupplier, PatagoniaAdapter),
-    "Paperflies": (PaperfliesSupplier, PaperfliesAdapter),
-}
-
-# Create suppliers dynamically
-supplier_factory = SupplierFactory(supplier_mapping)
-suppliers = supplier_factory.create_supplier()
-
-# Get hotel data from all suppliers
-for supplier in suppliers:
-    hotel = supplier.get_hotel()
-    print(hotel)
     
+    
+def fetch_all_data():
+    supplier_mapping = {
+        "Acme": (AcmeSupplier, AcmeAdapter),
+        "Patagonia": (PatagoniaSupplier, PatagoniaAdapter),
+        "Paperflies": (PaperfliesSupplier, PaperfliesAdapter),
+    }
+
+    # Create suppliers dynamically
+    supplier_factory = SupplierFactory(supplier_mapping)
+    suppliers = supplier_factory.create_supplier()
+
+    raw_data = []
+    for supplier in suppliers:
+        raw_data.extend(supplier.get_hotel())
+
+    return raw_data
 
 
-# print hotel in json format
+def merge_hotels(hotel_list):
+    merge_strategies = {
+        "images": merge_images_field,
+    }
 
-# json_output = json.dumps(asdict(hotel), indent=4)
-# print(json_output)
+    hotel_merger = HotelMerger(Hotel, merge_strategies)
+    return hotel_merger.merge_hotels(hotel_list)
+
+
+def main():
+    raw_data = fetch_all_data()
+    merged_data = merge_hotels(raw_data)
+
+    # write to result.json
+    with open("result.json", "w") as f:
+        json.dump([asdict(hotel) for hotel in merged_data], f, indent=4)
+
+
+if __name__ == "__main__":
+    main()
