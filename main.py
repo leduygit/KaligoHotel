@@ -43,6 +43,30 @@ class Hotel:
     booking_conditions: List[str]
 
 
+class SupplierFactory:
+    def __init__(self, supplier_mapping):
+        self.supplier_mapping = supplier_mapping
+
+    def create_supplier(self):
+        return [
+            SupplierClass(AdapterClass())
+            for SupplierClass, AdapterClass in self.supplier_mapping.values()
+        ]
+
+supplier_mapping = {
+    "Acme": (AcmeSupplier, AcmeAdapter),
+    "Patagonia": (PatagoniaSupplier, PatagoniaAdapter),
+    "Paperflies": (PaperfliesSupplier, PaperfliesAdapter),
+}
+
+# Create suppliers dynamically
+supplier_factory = SupplierFactory(supplier_mapping)
+suppliers = supplier_factory.create_supplier()
+
+# Get hotel data from all suppliers
+for supplier in suppliers:
+    hotel = supplier.get_hotel()
+    print(hotel)
     
 
 
