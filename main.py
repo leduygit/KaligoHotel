@@ -33,15 +33,20 @@ class HotelService:
             for hotel in self.hotel_list:
                 satisfies = True
 
-                for key, value in arg_set.items():
+                for key, value in arg_set.items(): 
                     if value is not None and str(getattr(hotel, key, None)) != str(value):
                         satisfies = False
                         break
 
                 if satisfies:
                     result.append(hotel)
-                    break 
+                    break  # If the current hotel satisfies the conditions, no need to check further sets
+
         return result
+
+
+
+            
 
 
 def fetch_all_data():
@@ -68,7 +73,6 @@ def merge_hotels(hotel_list):
     DataClass = Hotel
 
     hotel_merger = HotelMerger(DataClass, merge_strategies)
-    
     return hotel_merger.merge_hotels(hotel_list)
 
 def argument_parsing(keys):
