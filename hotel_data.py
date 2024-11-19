@@ -28,7 +28,7 @@ class Location:
 @dataclass
 class Hotel:
     __init__ = lambda self: None
-    
+
     id: str
     destination_id: int
     name: str

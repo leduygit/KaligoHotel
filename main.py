@@ -7,7 +7,6 @@ from merge_strategy import default_merge
 from hotel_data import Hotel
 import argparse
 
-
 class SupplierFactory:
     def __init__(self, supplier_mapping):
         self.suppliers = [
@@ -17,7 +16,6 @@ class SupplierFactory:
 
     def get_suppliers(self):
         return self.suppliers
-
 
 class HotelService:
     def __init__(self, hotel_list):
@@ -44,11 +42,6 @@ class HotelService:
 
         return result
 
-
-
-            
-
-
 def fetch_all_data():
     supplier_mapping = {
         "Acme": (AcmeSupplier, AcmeAdapter),
@@ -64,15 +57,14 @@ def fetch_all_data():
 
     return raw_data
 
-
 def merge_hotels(hotel_list):
     merge_strategies = {
         "images": default_merge,
     }
 
     DataClass = Hotel
-
     hotel_merger = HotelMerger(DataClass, merge_strategies)
+    
     return hotel_merger.merge_hotels(hotel_list)
 
 def argument_parsing(keys):
@@ -94,7 +86,6 @@ def argument_parsing(keys):
 
     return args
 
-
 def main():
     args_key = [
         "id", "destination_id"
@@ -110,7 +101,6 @@ def main():
     result = service.get_hotel(args)
 
     print(json.dumps([asdict(hotel) for hotel in result], indent=4))
-
 
 if __name__ == "__main__":
     main()
